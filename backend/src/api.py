@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify, abort
+from flask import Flask, request, jsonify, abort, Request
 from sqlalchemy import exc
 import json
 from flask_cors import CORS
@@ -36,7 +36,7 @@ def get_drinks():
 
 
 '''
-TODO implement endpoint
+DONE implement endpoint
     GET /drinks-detail
         it should require the 'get:drinks-detail' permission
         it should contain the drink.long() data representation
@@ -53,7 +53,7 @@ def get_drinks_detail(payload):
 
 
 '''
-@TODO implement endpoint
+DONE implement endpoint
     POST /drinks
         it should create a new row in the drinks table
         it should require the 'post:drinks' permission
@@ -61,6 +61,23 @@ def get_drinks_detail(payload):
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the newly created drink
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks', methods=['POST'])
+@requires_auth('post:drinks')
+def create_drink(payload):
+    data = request.get_json() or abort(400)
+    title = data.get('title') or abort(400)
+    recipe = data.get('recipe') or abort(400)
+    recipe = json.dumps(recipe)
+
+    drink = Drink(title=title, recipe=recipe)
+    try:
+        drink.insert()
+    except Exception:
+        abort(422)
+    return {
+        'success': True,
+        'drinks': [drink.long()]
+    }
 
 
 '''
@@ -101,7 +118,7 @@ def unprocessable(error):
                     }), 422
 
 '''
-@TODO implement error handlers using the @app.errorhandler(error) decorator
+DONE implement error handlers using the @app.errorhandler(error) decorator
     each error handler should return (with approprate messages):
              jsonify({
                     "success": False, 
@@ -112,7 +129,7 @@ def unprocessable(error):
 '''
 
 '''
-@TODO implement error handler for 404
+DONE implement error handler for 404
     error handler should conform to general task above 
 '''
 @app.errorhandler(404)
@@ -124,12 +141,41 @@ def not_found(_e):
     }, 404
 
 
+@app.errorhandler(400)
+def bad_request(_e):
+    return {
+        'success': False,
+        'error': 400,
+        'message': 'bad request'
+    }, 400
+
+
+@app.errorhandler(403)
+def forbidden(_e):
+    return {
+        'success': False,
+        'error': 403,
+        'message': 'forbidden'
+    }, 403
+
+
+@app.errorhandler(422)
+def unprocessable(_e):
+    return {
+        'success': False,
+        'error': 422,
+        'message': 'unprocessable'
+    }, 422
+
+
 '''
-@TODO implement error handler for AuthError
+DONE implement error handler for AuthError
     error handler should conform to general task above 
 '''
 @app.errorhandler(AuthError)
 def not_found(e: AuthError):
+    from sys import exc_info
+    print(exc_info())
     return {
         'success': False,
         'error': e.status_code,
