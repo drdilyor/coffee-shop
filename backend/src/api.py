@@ -20,13 +20,19 @@ CORS(app)
 
 ## ROUTES
 '''
-@TODO implement endpoint
+DONE implement endpoint
     GET /drinks
         it should be a public endpoint
         it should contain only the drink.short() data representation
     returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks')
+def get_drinks():
+    return {
+        'success': True,
+        'drinks': [d.short() for d in Drink.query.all()]
+    }
 
 
 '''
