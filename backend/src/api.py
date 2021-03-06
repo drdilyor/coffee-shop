@@ -36,13 +36,20 @@ def get_drinks():
 
 
 '''
-@TODO implement endpoint
+TODO implement endpoint
     GET /drinks-detail
         it should require the 'get:drinks-detail' permission
         it should contain the drink.long() data representation
     returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks-detail')
+@requires_auth('get:drinks-detail')
+def get_drinks_detail(payload):
+    return {
+        'success': True,
+        'drinks': [d.long() for d in Drink.query.all()]
+    }
 
 
 '''
@@ -108,9 +115,23 @@ def unprocessable(error):
 @TODO implement error handler for 404
     error handler should conform to general task above 
 '''
+@app.errorhandler(404)
+def not_found(_e):
+    return {
+        'success': False,
+        'error': 404,
+        'message': 'resource not found'
+    }, 404
 
 
 '''
 @TODO implement error handler for AuthError
     error handler should conform to general task above 
 '''
+@app.errorhandler(AuthError)
+def not_found(e: AuthError):
+    return {
+        'success': False,
+        'error': e.status_code,
+        'message': e.error,
+    }, e.status_code
