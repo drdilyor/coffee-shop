@@ -8,7 +8,7 @@ export FLASK_APP=api
 export FLASK_DEBUG=true
 flask run &
 
-cd ..
+cd ../frontend
 npm install
 ng serve
 ```
