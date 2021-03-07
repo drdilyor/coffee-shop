@@ -3,8 +3,8 @@
 git clone https://github.com/drdilyor/coffee-shop
 cd coffee-shop/backend
 python3 -m venv venv --prompt "nano project by an uzbek coder"
-pip install -r requirements.txt
 source venv/bin/activate
+pip install -r requirements.txt
 cd src
 export FLASK_APP=api.py
 export FLASK_DEBUG=true
