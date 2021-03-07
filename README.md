@@ -4,7 +4,7 @@ git clone https://github.com/drdilyor/coffee-shop
 cd coffee-shop/backend
 python3 -m venv venv --prompt "nano project by an uzbek coder"
 pip install -r requirements.txt
-export FLASK_APP=api
+export FLASK_APP=api.py
 export FLASK_DEBUG=true
 flask run &
 
