@@ -1,10 +1,9 @@
-import os
-from flask import Flask, request, jsonify, abort, Request
-from sqlalchemy import exc
+from flask import Flask, request, jsonify, abort
+from sqlalchemy.exc import SQLAlchemyError
 import json
 from flask_cors import CORS
 
-from .database.models import db_drop_and_create_all, setup_db, Drink
+from .database.models import db_drop_and_create_all, setup_db, Drink  # noqa
 from .auth.auth import AuthError, requires_auth
 
 app = Flask(__name__)
@@ -16,7 +15,7 @@ CORS(app)
 !! NOTE THIS WILL DROP ALL RECORDS AND START YOUR DB FROM SCRATCH
 !! NOTE THIS MUST BE UNCOMMENTED ON FIRST RUN
 '''
-# db_drop_and_create_all()
+db_drop_and_create_all()
 
 ## ROUTES
 '''
@@ -72,7 +71,7 @@ def create_drink(payload):
     drink = Drink(title=title, recipe=recipe)
     try:
         drink.insert()
-    except Exception:
+    except SQLAlchemyError:
         abort(422)
     return {
         'success': True,
@@ -101,7 +100,10 @@ def patch_drink(_payload, id: int):
         drink.title = data['title']
     if 'recipe' in data:
         drink.recipe = json.dumps(data['recipe'])
-    drink.update()
+    try:
+        drink.update()
+    except SQLAlchemyError:
+        abort(422)
 
     return {
         'success': True,
@@ -119,6 +121,19 @@ def patch_drink(_payload, id: int):
     returns status code 200 and json {"success": True, "delete": id} where id is the id of the deleted record
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks/<int:id>', methods=['DELETE'])
+@requires_auth('delete:drinks')
+def delete_drink(_payload, id: int):
+    drink: Drink = Drink.query.get(id) or abort(404)
+    try:
+        drink.delete()
+    except SQLAlchemyError:
+        abort(422)
+    return {
+        'success': True,
+        'delete': id
+    }
+
 
 
 ## Error Handling
