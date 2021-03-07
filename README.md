@@ -1,3 +1,17 @@
+# Installation copy/paste (Linux/macOS):
+```
+git clone https://github.com/drdilyor/coffee-shop
+cd coffee-shop/backend
+python3 -m venv venv --prompt "nano project by an uzbek coder"
+pip install -r requirements.txt
+export FLASK_APP=api
+export FLASK_DEBUG=true
+flask run &
+
+cd ..
+npm install
+ng serve
+```
 # Coffee Shop Full Stack
 
 ## Full Stack Nano - IAM Final Project
